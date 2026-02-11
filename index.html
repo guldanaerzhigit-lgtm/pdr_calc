@@ -29,7 +29,7 @@
       background:var(--bg);
       color:var(--text);
       margin:0;
-      padding:12px 12px 90px 12px;
+      padding:12px;
       display:flex;
       justify-content:center;
       transition:0.2s;
@@ -42,23 +42,13 @@
       border-radius:14px;
       padding:16px;
       box-shadow:0 10px 25px rgba(0,0,0,0.15);
-      animation:fadeIn .25s ease;
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0; transform:translateY(6px);} 
-      to {opacity:1; transform:translateY(0);} 
     }
 
     .header {
-      position:sticky;
-      top:0;
-      background:var(--card);
       display:flex;
       align-items:center;
       justify-content:space-between;
       margin-bottom:10px;
-      padding-bottom:6px;
     }
 
     .logo {
@@ -81,13 +71,6 @@
       font-weight:bold;
     }
 
-    .card {
-      border:1px solid rgba(0,0,0,0.08);
-      border-radius:12px;
-      padding:12px;
-      margin-top:12px;
-    }
-
     .themeBtn {
       background:var(--accent);
       color:white;
@@ -97,16 +80,31 @@
       cursor:pointer;
     }
 
+    h3 { margin-bottom:6px; }
+
     .grid {
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
     }
 
-    label { font-size:13px; color:var(--muted); }
+    label {
+      font-size:13px;
+      color:var(--muted);
+    }
 
-    table { width:100%; border-collapse:collapse; margin:10px 0; }
-    th, td { border-bottom:1px solid rgba(0,0,0,0.08); padding:6px; text-align:center; }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      margin:10px 0;
+    }
+
+    th, td {
+      border-bottom:1px solid rgba(0,0,0,0.08);
+      padding:6px;
+      text-align:center;
+      font-size:14px;
+    }
 
     input, select {
       width:100%;
@@ -114,6 +112,7 @@
       border-radius:8px;
       border:1px solid #ccc;
       font-size:16px;
+      box-sizing:border-box;
       background:var(--card);
       color:var(--text);
     }
@@ -124,10 +123,8 @@
       border-radius:10px;
       cursor:pointer;
       margin-top:8px;
-      transition:.15s;
+      font-size:15px;
     }
-
-    button:active { transform:scale(0.96); }
 
     .primary { background:var(--accent); color:white; }
     .danger { background:#dc2626; color:white; }
@@ -136,41 +133,32 @@
 
     .result {
       margin-top:12px;
-      background:linear-gradient(135deg,#111827,#1f2933);
+      background:var(--result);
       color:white;
-      padding:18px;
+      padding:16px;
       border-radius:12px;
-      font-size:22px;
+      font-size:20px;
       text-align:center;
-      transition:.2s;
-    }
-
-    .flash { animation:flash .35s ease; }
-
-    @keyframes flash {
-      0% { transform:scale(1.04); }
-      100% { transform:scale(1); }
-    }
-
-    .fab {
-      position:fixed;
-      bottom:16px;
-      right:16px;
-      width:60px;
-      height:60px;
-      border-radius:50%;
-      background:var(--accent);
-      color:white;
-      font-size:28px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 10px 20px rgba(0,0,0,0.25);
-      cursor:pointer;
     }
 
     @media (max-width:640px) {
       .grid { grid-template-columns:1fr; }
+      table thead { display:none; }
+      table, tbody, tr, td { display:block; width:100%; }
+      tr { background:rgba(0,0,0,0.05); border-radius:10px; margin-bottom:10px; padding:8px; }
+      td { text-align:left; border:none; padding:4px 0; }
+      td::before { font-weight:bold; display:block; font-size:12px; color:var(--muted); }
+      td:nth-child(1)::before { content:"Размер"; }
+      td:nth-child(2)::before { content:"Зона"; }
+      td:nth-child(3)::before { content:"Сложность"; }
+      td:nth-child(4)::before { content:"Цена"; }
+      button { width:100%; }
+    }
+
+    @media print {
+      button { display:none; }
+      body { background:white; }
+      .app { box-shadow:none; }
     }
   </style>
 </head>
@@ -183,160 +171,177 @@
       <div class="logoMark">P</div>
       PDR PRO
     </div>
-    <button class="themeBtn" onclick="toggleTheme()">☀️ / 🌙</button>
+    <button class="themeBtn" onclick="toggleTheme()">Тема</button>
   </div>
 
-  <div class="card">
-    <h3>🧾 Данные заказа</h3>
-    <div class="grid">
-      <div>
-        <label>Номер заказа</label>
-        <input id="orderNumber" value="001">
-      </div>
+  <h3>Смета на удаление вмятин без покраски</h3>
 
-      <div>
-        <label>📅 Дата</label>
-        <input id="date" type="date">
-      </div>
+  <div class="grid">
+    <div>
+      <label>Номер заказа</label>
+      <input id="orderNumber" value="001">
+    </div>
 
-      <div>
-        <label>👤 Клиент</label>
-        <input id="client">
-      </div>
+    <div>
+      <label>Дата</label>
+      <input id="date" type="date">
+    </div>
 
-      <div>
-        <label>🚗 Автомобиль</label>
-        <input id="car">
-      </div>
+    <div>
+      <label>Клиент</label>
+      <input id="client" placeholder="Имя клиента">
+    </div>
+
+    <div>
+      <label>Автомобиль</label>
+      <input id="car" placeholder="Марка и модель">
     </div>
   </div>
 
-  <div class="card">
-    <h3>🔧 Вмятины</h3>
-    <table id="dentTable">
-      <thead>
-        <tr>
-          <th>Размер</th>
-          <th>Зона</th>
-          <th>Сложность</th>
-          <th>Цена</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button class="primary" onclick="addDent()">+ Добавить вмятину</button>
-  </div>
+  <table id="dentTable">
+    <thead>
+      <tr>
+        <th>Размер</th>
+        <th>Зона</th>
+        <th>Сложность</th>
+        <th>Цена</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-  <div class="card">
-    <h3>🧮 Расчёт</h3>
+  <button class="primary" onclick="addDent()">Добавить вмятину</button>
 
-    <label>🔧 Часы</label>
-    <input id="hours" type="number" value="1">
+  <h3>Дополнительно</h3>
 
-    <label>💰 Ставка</label>
-    <input id="rate" type="number" value="10000">
+  <label>Минимальная цена</label>
+  <input id="minPrice" type="number" value="5000">
 
-    <label>🧰 Материалы</label>
-    <input id="materials" type="number" value="2000">
+  <label>Скидка (%)</label>
+  <input id="discount" type="number" value="0">
 
-    <label>Минимальная цена</label>
-    <input id="minPrice" type="number" value="5000">
+  <label>Часы</label>
+  <input id="hours" type="number" value="1">
 
-    <label>Скидка (%)</label>
-    <input id="discount" type="number" value="0">
+  <label>Ставка</label>
+  <input id="rate" type="number" value="10000">
 
-    <div class="card" style="margin-top:12px;">
-      <div>Работы: <b id="laborSum">0 ₸</b></div>
-      <div>Материалы: <b id="materialsSum">0 ₸</b></div>
-      <div>Вмятины: <b id="dentsSum">0 ₸</b></div>
-      <hr>
-      <div class="result" id="total">Итого: 0 ₸</div>
-    </div>
+  <label>Материалы</label>
+  <input id="materials" type="number" value="2000">
 
-    <button class="warn" onclick="exportPDF()">PDF</button>
-    <button class="success" onclick="saveData()">Сохранить</button>
-  </div>
+  <div style="margin-top:12px;border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:12px;">
+  <div>Работы: <b id="laborSum">0 ₸</b></div>
+  <div>Материалы: <b id="materialsSum">0 ₸</b></div>
+  <div>Вмятины: <b id="dentsSum">0 ₸</b></div>
+  <hr>
+  <div class="result" id="total">Итого: 0 ₸</div>
 </div>
 
-<div class="fab" onclick="addDent();vibrate();">+</div>
+  <button class="warn" onclick="exportPDF()">Экспорт PDF</button>
+  <button class="success" onclick="saveData()">Сохранить</button>
+</div>
 
 <script>
-const zoneK={"дверь":1,"крыло":1.2,"капот":1.3,"крыша":1.5};
-const diffK={"легкая":1,"средняя":1.5,"сложная":2};
-
-function vibrate(){ if(navigator.vibrate) navigator.vibrate(30); }
+const zoneK = { "дверь":1, "крыло":1.2, "капот":1.3, "крыша":1.5 };
+const diffK = { "легкая":1, "средняя":1.5, "сложная":2 };
 
 function toggleTheme(){
- document.body.classList.toggle("dark");
- localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
 }
 
 (function(){
- if(localStorage.getItem("theme")==="dark") document.body.classList.add("dark");
- document.getElementById("date").valueAsDate=new Date();
+  if(localStorage.getItem("theme")==="dark"){
+    document.body.classList.add("dark");
+  }
 })();
 
 function addDent(size=5){
- const tr=document.createElement("tr");
- tr.innerHTML=`
- <td><input class="size" type="number" value="${size}"></td>
- <td><select class="zone"><option>дверь</option><option>крыло</option><option>капот</option><option>крыша</option></select></td>
- <td><select class="diff"><option>легкая</option><option>средняя</option><option>сложная</option></select></td>
- <td class="price">0</td>
- <td><button class="danger" onclick="removeDent(this)">✕</button></td>`;
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input class="size" type="number" value="${size}"></td>
+    <td>
+      <select class="zone">
+        <option>дверь</option>
+        <option>крыло</option>
+        <option>капот</option>
+        <option>крыша</option>
+      </select>
+    </td>
+    <td>
+      <select class="diff">
+        <option>легкая</option>
+        <option>средняя</option>
+        <option>сложная</option>
+      </select>
+    </td>
+    <td class="price">0</td>
+    <td><button class="danger" onclick="removeDent(this)">Удалить</button></td>`;
 
- document.querySelector("#dentTable tbody").appendChild(tr);
- tr.querySelectorAll("input,select").forEach(el=>el.addEventListener("input",calc));
- calc();
+  document.querySelector("#dentTable tbody").appendChild(tr);
+
+  tr.querySelectorAll("input,select").forEach(el =>
+    el.addEventListener("input", calc)
+  );
+
+  calc();
 }
 
-function removeDent(btn){ btn.closest("tr").remove(); calc(); vibrate(); }
+function removeDent(btn){
+  btn.closest("tr").remove();
+  calc();
+}
 
 function calc(){
- let dentsTotal=0;
- const minPrice=+minPriceInput.value;
+  let dentsTotal = 0;
+  const minPrice = +minPriceInput.value;
 
- document.querySelectorAll("#dentTable tbody tr").forEach(row=>{
-  let p=+row.querySelector(".size").value*500;
-  p*=zoneK[row.querySelector(".zone").value];
-  p*=diffK[row.querySelector(".diff").value];
-  p=Math.max(p,minPrice);
-  row.querySelector(".price").innerText=Math.round(p);
-  dentsTotal+=p;
- });
+  document.querySelectorAll("#dentTable tbody tr").forEach(row=>{
+    const size = +row.querySelector(".size").value;
+    const zone = row.querySelector(".zone").value;
+    const diff = row.querySelector(".diff").value;
 
- if(document.querySelectorAll("#dentTable tbody tr").length>1)
-  dentsTotal*=1-(+discountInput.value/100);
+    let p = size * 500 * zoneK[zone] * diffK[diff];
+    p = Math.max(p, minPrice);
 
- const labor=+hoursInput.value*+rateInput.value;
- const materialsCost=+materialsInput.value;
- const total=dentsTotal+labor+materialsCost;
+    row.querySelector(".price").innerText = Math.round(p);
+    dentsTotal += p;
+  });
 
- laborSum.innerText=Math.round(labor)+" ₸";
- materialsSum.innerText=Math.round(materialsCost)+" ₸";
- dentsSum.innerText=Math.round(dentsTotal)+" ₸";
+  if(document.querySelectorAll("#dentTable tbody tr").length > 1){
+    dentsTotal *= (1 - (+discountInput.value/100));
+  }
 
- totalDiv.innerText="Итого: "+Math.round(total)+" ₸";
- totalDiv.classList.add("flash");
- setTimeout(()=>totalDiv.classList.remove("flash"),200);
+  const labor = +hoursInput.value * +rateInput.value;
+  const materialsCost = +materialsInput.value;
+  const total = dentsTotal + labor + materialsCost;
+
+  document.getElementById("laborSum").innerText = Math.round(labor) + " ₸";
+  document.getElementById("materialsSum").innerText = Math.round(materialsCost) + " ₸";
+  document.getElementById("dentsSum").innerText = Math.round(dentsTotal) + " ₸";
+
+  totalDiv.innerText = "Итого: " + Math.round(total) + " ₸";
 }
 
-function saveData(){ alert("Сохранено"); }
-function exportPDF(){ window.print(); }
+function saveData(){
+  localStorage.setItem("pdr_invoice_html", document.getElementById("invoice").innerHTML);
+  alert("Сохранено");
+}
 
-const minPriceInput=document.getElementById("minPrice");
-const discountInput=document.getElementById("discount");
-const hoursInput=document.getElementById("hours");
-const rateInput=document.getElementById("rate");
-const materialsInput=document.getElementById("materials");
-const totalDiv=document.getElementById("total");
-const laborSum=document.getElementById("laborSum");
-const materialsSum=document.getElementById("materialsSum");
-const dentsSum=document.getElementById("dentsSum");
+function exportPDF(){
+  window.print();
+}
+
+const minPriceInput = document.getElementById("minPrice");
+const discountInput = document.getElementById("discount");
+const hoursInput = document.getElementById("hours");
+const rateInput = document.getElementById("rate");
+const materialsInput = document.getElementById("materials");
+const totalDiv = document.getElementById("total");
 
 [minPriceInput,discountInput,hoursInput,rateInput,materialsInput]
-.forEach(el=>el.addEventListener("input",calc));
+  .forEach(el=>el.addEventListener("input",calc));
 
 addDent();
 </script>
