@@ -5,51 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDR Calculator</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background:#f3f4f6;
-      margin:0;
-      padding:12px;
-      display:flex;
-      justify-content:center;
-    }
+  <!-- QR generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-    .app {
-      background:white;
-      max-width:800px;
-      width:100%;
-      border-radius:14px;
-      padding:16px;
-      box-shadow:0 10px 25px rgba(0,0,0,0.08);
-    }
+  <style>
+    body { font-family: Arial, sans-serif; background:#f3f4f6; margin:0; padding:12px; display:flex; justify-content:center; }
+
+    .app { background:white; max-width:800px; width:100%; border-radius:14px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,0.08); }
 
     h1 { font-size:22px; }
-    h3 { margin-bottom:6px; }
 
-    .grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
-    label {
-      font-size:13px;
-      color:#555;
-    }
+    label { font-size:13px; color:#555; }
 
-    table {
-      width:100%;
-      border-collapse:collapse;
-      margin:10px 0;
-    }
+    table { width:100%; border-collapse:collapse; margin:10px 0; }
 
-    th, td {
-      border-bottom:1px solid #eee;
-      padding:6px;
-      text-align:center;
-      font-size:14px;
-    }
+    th, td { border-bottom:1px solid #eee; padding:6px; text-align:center; font-size:14px; }
 
     input, select {
       width:100%;
@@ -74,67 +46,30 @@
     .success { background:#16a34a; color:white; }
     .warn { background:#f59e0b; color:white; }
 
-    .result {
-      margin-top:12px;
-      background:#111827;
-      color:white;
-      padding:16px;
-      border-radius:12px;
-      font-size:20px;
-      text-align:center;
+    .result { margin-top:12px; background:#111827; color:white; padding:16px; border-radius:12px; font-size:20px; text-align:center; }
+
+    .qrBox { text-align:center; margin-top:10px; }
+
+    .readonly input,
+    .readonly select,
+    .readonly button.primary,
+    .readonly button.success {
+      pointer-events:none;
+      opacity:0.6;
     }
 
-    /* mobile improvements */
     @media (max-width:640px) {
-      body { padding:6px; }
-      .app { padding:12px; }
-
-      .grid {
-        grid-template-columns:1fr;
-      }
-
+      .grid { grid-template-columns:1fr; }
       table thead { display:none; }
-
-      table, tbody, tr, td {
-        display:block;
-        width:100%;
-      }
-
-      tr {
-        background:#fafafa;
-        border-radius:10px;
-        margin-bottom:10px;
-        padding:8px;
-      }
-
-      td {
-        text-align:left;
-        border:none;
-        padding:4px 0;
-      }
-
-      td::before {
-        font-weight:bold;
-        display:block;
-        font-size:12px;
-        color:#666;
-      }
-
+      table, tbody, tr, td { display:block; width:100%; }
+      tr { background:#fafafa; border-radius:10px; margin-bottom:10px; padding:8px; }
+      td { text-align:left; border:none; padding:4px 0; }
+      td::before { font-weight:bold; display:block; font-size:12px; color:#666; }
       td:nth-child(1)::before { content:"Размер"; }
       td:nth-child(2)::before { content:"Зона"; }
       td:nth-child(3)::before { content:"Сложность"; }
       td:nth-child(4)::before { content:"Цена"; }
-
-      button {
-        width:100%;
-      }
-    }
-
-    /* PDF print */
-    @media print {
-      button { display:none; }
-      body { background:white; }
-      .app { box-shadow:none; }
+      button { width:100%; }
     }
   </style>
 </head>
@@ -152,18 +87,8 @@
     </div>
 
     <div>
-      <label>Дата</label>
-      <input id="date" type="date">
-    </div>
-
-    <div>
       <label>Клиент</label>
       <input id="client" placeholder="Имя клиента">
-    </div>
-
-    <div>
-      <label>Автомобиль</label>
-      <input id="car" placeholder="Марка и модель">
     </div>
   </div>
 
@@ -182,27 +107,13 @@
 
   <button class="primary" onclick="addDent()">Добавить вмятину</button>
 
-  <h3>Дополнительно</h3>
-
-  <label>Минимальная цена</label>
-  <input id="minPrice" type="number" value="5000">
-
-  <label>Скидка (%)</label>
-  <input id="discount" type="number" value="0">
-
-  <label>Часы</label>
-  <input id="hours" type="number" value="1">
-
-  <label>Ставка</label>
-  <input id="rate" type="number" value="10000">
-
-  <label>Материалы</label>
-  <input id="materials" type="number" value="2000">
-
   <div class="result" id="total">Итого: 0 ₸</div>
 
-  <button class="warn" onclick="exportPDF()">Экспорт PDF</button>
-  <button class="success" onclick="saveData()">Сохранить</button>
+  <button class="warn" onclick="generateQR()">QR для клиента</button>
+
+  <div class="qrBox">
+    <div id="qrcode"></div>
+  </div>
 </div>
 
 <script>
@@ -232,65 +143,79 @@ function addDent(size=5){
     <td><button class="danger" onclick="removeDent(this)">Удалить</button></td>`;
 
   document.querySelector("#dentTable tbody").appendChild(tr);
-
-  tr.querySelectorAll("input,select").forEach(el =>
-    el.addEventListener("input", calc)
-  );
-
+  tr.querySelectorAll("input,select").forEach(el => el.addEventListener("input", calc));
   calc();
 }
 
-function removeDent(btn){
-  btn.closest("tr").remove();
-  calc();
-}
+function removeDent(btn){ btn.closest("tr").remove(); calc(); }
 
 function calc(){
-  let dentsTotal = 0;
-  const minPrice = +minPriceInput.value;
-
+  let total=0;
   document.querySelectorAll("#dentTable tbody tr").forEach(row=>{
-    const size = +row.querySelector(".size").value;
-    const zone = row.querySelector(".zone").value;
-    const diff = row.querySelector(".diff").value;
+    let p=+row.querySelector(".size").value*500;
+    p*=zoneK[row.querySelector(".zone").value];
+    p*=diffK[row.querySelector(".diff").value];
+    row.querySelector(".price").innerText=Math.round(p);
+    total+=p;
+  });
+  totalDiv.innerText="Итого: "+Math.round(total)+" ₸";
+}
 
-    let p = size * 500 * zoneK[zone] * diffK[diff];
-    p = Math.max(p, minPrice);
-
-    row.querySelector(".price").innerText = Math.round(p);
-    dentsTotal += p;
+function collectData(){
+  const dents=[];
+  document.querySelectorAll("#dentTable tbody tr").forEach(row=>{
+    dents.push({
+      size:row.querySelector(".size").value,
+      zone:row.querySelector(".zone").value,
+      diff:row.querySelector(".diff").value,
+      price:row.querySelector(".price").innerText
+    });
   });
 
-  if(document.querySelectorAll("#dentTable tbody tr").length > 1){
-    dentsTotal *= (1 - (+discountInput.value/100));
-  }
-
-  const labor = +hoursInput.value * +rateInput.value;
-  const total = dentsTotal + labor + +materialsInput.value;
-
-  totalDiv.innerText = "Итого: " + Math.round(total) + " ₸";
+  return {
+    order:orderNumber.value,
+    client:client.value,
+    dents,
+    total:totalDiv.innerText
+  };
 }
 
-function saveData(){
-  localStorage.setItem("pdr_invoice_html", document.getElementById("invoice").innerHTML);
-  alert("Сохранено");
+function generateQR(){
+  const data=encodeURIComponent(JSON.stringify(collectData()));
+  const url=location.origin+location.pathname+"?view=1&data="+data;
+
+  document.getElementById("qrcode").innerHTML="";
+  new QRCode(document.getElementById("qrcode"),url);
 }
 
-function exportPDF(){
-  window.print();
+function loadViewMode(){
+  const params=new URLSearchParams(location.search);
+  if(!params.get("view")) return;
+
+  document.body.classList.add("readonly");
+
+  const data=JSON.parse(decodeURIComponent(params.get("data")));
+
+  orderNumber.value=data.order;
+  client.value=data.client;
+
+  document.querySelector("#dentTable tbody").innerHTML="";
+
+  data.dents.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.size}</td><td>${d.zone}</td><td>${d.diff}</td><td>${d.price}</td><td></td>`;
+    document.querySelector("#dentTable tbody").appendChild(tr);
+  });
+
+  totalDiv.innerText=data.total;
 }
 
-const minPriceInput = document.getElementById("minPrice");
-const discountInput = document.getElementById("discount");
-const hoursInput = document.getElementById("hours");
-const rateInput = document.getElementById("rate");
-const materialsInput = document.getElementById("materials");
-const totalDiv = document.getElementById("total");
-
-[minPriceInput,discountInput,hoursInput,rateInput,materialsInput]
-  .forEach(el=>el.addEventListener("input",calc));
+const totalDiv=document.getElementById("total");
+const orderNumber=document.getElementById("orderNumber");
+const client=document.getElementById("client");
 
 addDent();
+loadViewMode();
 </script>
 
 </body>
