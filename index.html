@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDR Calculator</title>
+
+  <style>
+    body { font-family: Arial, sans-serif; background:#f3f4f6; margin:0; padding:20px; display:flex; justify-content:center; }
+    .app { background:white; max-width:800px; width:100%; border-radius:14px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.08); }
+
+    h1, h2, h3 { margin-top:0; }
+
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+    table { width:100%; border-collapse:collapse; margin:10px 0; }
+    th, td { border-bottom:1px solid #eee; padding:8px; text-align:center; }
+
+    input, select { width:100%; padding:6px; border-radius:6px; border:1px solid #ccc; }
+
+    button { padding:10px; border:none; border-radius:8px; cursor:pointer; margin-top:8px; }
+
+    .primary { background:#2563eb; color:white; }
+    .danger { background:#dc2626; color:white; }
+    .success { background:#16a34a; color:white; }
+    .warn { background:#f59e0b; color:white; }
+
+    .result { margin-top:12px; background:#111827; color:white; padding:14px; border-radius:10px; font-size:18px; text-align:center; }
+
+    /* PDF print */
+    @media print {
+      button { display:none; }
+      body { background:white; }
+      .app { box-shadow:none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app" id="invoice">
+
+  <h1>PDR SERVICE</h1>
+  <h3>Смета на удаление вмятин без покраски</h3>
+
+  <div class="grid">
+    <div>
+      <label>Номер заказа</label>
+      <input id="orderNumber" value="001">
+    </div>
+
+    <div>
+      <label>Дата</label>
+      <input id="date" type="date">
+    </div>
+
+    <div>
+      <label>Клиент</label>
+      <input id="client" placeholder="Имя клиента">
+    </div>
+
+    <div>
+      <label>Автомобиль</label>
+      <input id="car" placeholder="Марка и модель">
+    </div>
+  </div>
+
+  <table id="dentTable">
+    <thead>
+      <tr>
+        <th>Размер</th>
+        <th>Зона</th>
+        <th>Сложность</th>
+        <th>Цена</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button class="primary" onclick="addDent()">Добавить вмятину</button>
+
+  <h3>Дополнительно</h3>
+
+  <label>Минимальная цена</label>
+  <input id="minPrice" type="number" value="5000">
+
+  <label>Скидка (%)</label>
+  <input id="discount" type="number" value="0">
+
+  <label>Часы</label>
+  <input id="hours" type="number" value="1">
+
+  <label>Ставка</label>
+  <input id="rate" type="number" value="10000">
+
+  <label>Материалы</label>
+  <input id="materials" type="number" value="2000">
+
+  <div class="result" id="total">Итого: 0 ₸</div>
+
+  <button class="warn" onclick="exportPDF()">Экспорт PDF</button>
+  <button class="success" onclick="saveData()">Сохранить</button>
+</div>
+
+<script>
+const zoneK = { "дверь":1, "крыло":1.2, "капот":1.3, "крыша":1.5 };
+const diffK = { "легкая":1, "средняя":1.5, "сложная":2 };
+
+function addDent(size=5){
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input class="size" type="number" value="${size}"></td>
+    <td>
+      <select class="zone">
+        <option>дверь</option>
+        <option>крыло</option>
+        <option>капот</option>
+        <option>крыша</option>
+      </select>
+    </td>
+    <td>
+      <select class="diff">
+        <option>легкая</option>
+        <option>средняя</option>
+        <option>сложная</option>
+      </select>
+    </td>
+    <td class="price">0</td>
+    <td><button class="danger" onclick="removeDent(this)">✕</button></td>`;
+
+  document.querySelector("#dentTable tbody").appendChild(tr);
+
+  tr.querySelectorAll("input,select").forEach(el =>
+    el.addEventListener("input", calc)
+  );
+
+  calc();
+}
+
+function removeDent(btn){
+  btn.closest("tr").remove();
+  calc();
+}
+
+function calc(){
+  let dentsTotal = 0;
+  const minPrice = +minPriceInput.value;
+
+  document.querySelectorAll("#dentTable tbody tr").forEach(row=>{
+    const size = +row.querySelector(".size").value;
+    const zone = row.querySelector(".zone").value;
+    const diff = row.querySelector(".diff").value;
+
+    let p = size * 500 * zoneK[zone] * diffK[diff];
+    p = Math.max(p, minPrice);
+
+    row.querySelector(".price").innerText = Math.round(p);
+    dentsTotal += p;
+  });
+
+  if(document.querySelectorAll("#dentTable tbody tr").length > 1){
+    dentsTotal *= (1 - (+discountInput.value/100));
+  }
+
+  const labor = +hoursInput.value * +rateInput.value;
+  const total = dentsTotal + labor + +materialsInput.value;
+
+  totalDiv.innerText = "Итого: " + Math.round(total) + " ₸";
+}
+
+function saveData(){
+  localStorage.setItem("pdr_invoice_html", document.getElementById("invoice").innerHTML);
+  alert("Сохранено");
+}
+
+function exportPDF(){
+  window.print();
+}
+
+const minPriceInput = document.getElementById("minPrice");
+const discountInput = document.getElementById("discount");
+const hoursInput = document.getElementById("hours");
+const rateInput = document.getElementById("rate");
+const materialsInput = document.getElementById("materials");
+const totalDiv = document.getElementById("total");
+
+[minPriceInput,discountInput,hoursInput,rateInput,materialsInput]
+  .forEach(el=>el.addEventListener("input",calc));
+
+addDent();
+
+// simple tests
+console.assert(zoneK["дверь"]===1);
+console.assert(diffK["сложная"]===2);
+</script>
+
+</body>
+</html>
