@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDR Calculator</title>
 
-  <!-- QR generator -->
+  <!-- QR library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
@@ -14,6 +14,7 @@
     .app { background:white; max-width:800px; width:100%; border-radius:14px; padding:16px; box-shadow:0 10px 25px rgba(0,0,0,0.08); }
 
     h1 { font-size:22px; }
+    h3 { margin-bottom:6px; }
 
     .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
@@ -32,14 +33,7 @@
       box-sizing:border-box;
     }
 
-    button {
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      cursor:pointer;
-      margin-top:8px;
-      font-size:15px;
-    }
+    button { padding:12px; border:none; border-radius:10px; cursor:pointer; margin-top:8px; font-size:15px; }
 
     .primary { background:#2563eb; color:white; }
     .danger { background:#dc2626; color:white; }
@@ -48,7 +42,7 @@
 
     .result { margin-top:12px; background:#111827; color:white; padding:16px; border-radius:12px; font-size:20px; text-align:center; }
 
-    .qrBox { text-align:center; margin-top:10px; }
+    .qrBox { text-align:center; margin-top:12px; }
 
     .readonly input,
     .readonly select,
@@ -185,7 +179,11 @@ function generateQR(){
   const url=location.origin+location.pathname+"?view=1&data="+data;
 
   document.getElementById("qrcode").innerHTML="";
-  new QRCode(document.getElementById("qrcode"),url);
+  new QRCode(document.getElementById("qrcode"),{
+    text:url,
+    width:180,
+    height:180
+  });
 }
 
 function loadViewMode(){
